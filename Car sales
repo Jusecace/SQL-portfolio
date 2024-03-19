@@ -1,1 +1,143 @@
+-- This table illustrates the month with the highest car sales, indicating that December 2023 had the most significant total sales volume. --
 
+SELECT 
+    Month,
+    total_cars_sold,
+    total_sales,
+    average_sales_per_car
+FROM (
+    SELECT 
+        DATE_FORMAT(STR_TO_DATE(Date, '%m/%d/%Y'), '%Y-%m') AS Month,
+        COUNT(*) AS total_cars_sold,
+        SUM(`Price ($)`) AS total_sales,
+        SUM(`Price ($)`) / COUNT(*) AS average_sales_per_car
+    FROM 
+        car_sales.cars
+    GROUP BY 
+        DATE_FORMAT(STR_TO_DATE(Date, '%m/%d/%Y'), '%Y-%m')
+) AS subquery
+ORDER BY 
+    total_cars_sold DESC
+Limit 1;
+
+
+
+-- Conversely, this table highlights that the highest revenue per car was achieved in August 2022.  --
+
+SELECT 
+    Month,
+    total_cars_sold,
+    total_sales,
+    average_sales_per_car
+FROM (
+    SELECT 
+        DATE_FORMAT(STR_TO_DATE(Date, '%m/%d/%Y'), '%Y-%m') AS Month,
+        COUNT(*) AS total_cars_sold,
+        SUM(`Price ($)`) AS total_sales,
+        SUM(`Price ($)`) / COUNT(*) AS average_sales_per_car
+    FROM 
+        car_sales.cars
+    GROUP BY 
+        DATE_FORMAT(STR_TO_DATE(Date, '%m/%d/%Y'), '%Y-%m')
+) AS subquery
+ORDER BY 
+    average_sales_per_car DESC
+Limit 1;
+
+
+-- This table provides a gender-based analysis of the dataset. It includes two distinct categories: Male and Female. --
+
+SELECT
+    total_male,
+    total_female,
+    (male_income / total_male) as avg_male_income,
+    (female_income / total_female) as avg_female_income,
+    (male_total_price / total_male) as avg_male_price,
+    (female_total_price / total_female) as avg_female_price,
+    (total_price_cars/(total_male+total_female)) as avg_price_per_car,
+    (male_auto_count / total_male) as male_auto_preference,
+    (male_manual_count / total_male) as male_manual_preference,
+    (female_auto_count / total_female) as female_auto_preference,
+    (female_manual_count / total_female) as female_manual_preference
+    
+
+FROM (
+    SELECT
+        SUM(CASE WHEN Gender = 'Male' THEN 1 ELSE 0 END) as total_male,
+        SUM(CASE WHEN Gender = 'Female' THEN 1 ELSE 0 END) as total_female,
+        SUM(CASE WHEN Gender = 'Male' THEN `Annual Income` ELSE 0 END) as male_income,
+        SUM(CASE WHEN Gender = 'Female' THEN `Annual Income` ELSE 0 END) as female_income,
+        SUM(CASE WHEN Gender = 'Male' THEN `Price ($)` ELSE 0 END) as male_total_price,
+        SUM(CASE WHEN Gender = 'Female' THEN `Price ($)` ELSE 0 END) as female_total_price,
+        SUM(CASE WHEN Gender = 'Male' AND Transmission = 'Auto' THEN 1 ELSE 0 END) as male_auto_count,
+        SUM(CASE WHEN Gender = 'Male' AND Transmission = 'Manual' THEN 1 ELSE 0 END) as male_manual_count,
+        SUM(CASE WHEN Gender = 'Female' AND Transmission = 'Auto' THEN 1 ELSE 0 END) as female_auto_count,
+        SUM(CASE WHEN Gender = 'Female' AND Transmission = 'Manual' THEN 1 ELSE 0 END) as female_manual_count,
+		sum(`Price ($)`) as total_price_cars
+    FROM
+        car_sales.cars
+) AS subquery;
+
+
+-- In this table, dealers are organized based on their sales volume, the number of vehicles sold, and the average price of each vehicle. --
+SELECT
+    Dealer_Name,
+    total_sales,
+    total_cars_sold,
+    (total_sales/total_cars_sold) as avg_car_price
+FROM (
+    SELECT
+        Dealer_Name,
+		sum(`Price ($)`) as total_sales,
+        count(*) as total_cars_sold
+        
+    FROM
+        car_sales.cars
+	GROUP BY
+    Dealer_Name
+) AS subquery
+
+order by total_sales DESC;
+
+-- In this table, data is organized by company (brand), showcasing total sales, the number of cars sold, and the average price of each car. --
+
+SELECT
+    Company,
+    total_sales,
+    total_cars_sold,
+    (total_sales/total_cars_sold) as avg_car_price
+FROM (
+    SELECT
+        Company,
+		sum(`Price ($)`) as total_sales,
+        count(*) as total_cars_sold
+        
+    FROM
+        car_sales.cars
+	GROUP BY
+    Company
+) AS subquery
+
+order by total_sales DESC;
+
+
+-- In this table, the data is organized by model, displaying total sales, the number of cars sold, and the average price of each car. --
+SELECT
+    Model,
+    total_sales,
+    total_cars_sold,
+    (total_sales/total_cars_sold) as avg_car_price
+FROM (
+    SELECT
+        Company,
+        Model,
+		sum(`Price ($)`) as total_sales,
+        count(*) as total_cars_sold
+        
+    FROM
+        car_sales.cars
+	GROUP BY
+    Model
+) AS subquery
+
+order by total_sales DESC;
